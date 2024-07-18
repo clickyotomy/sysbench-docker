@@ -1,0 +1,14 @@
+sysbench-docker
+---------------
+
+Creates a `docker` image with `sysbench`.
+
+BUILD
+    docker build \
+        --platform "linux/arm64,linux/amd64" \
+        --tag "${REPO}/sysbench-docker:${TAG}" .
+
+PUSH
+    docker push "${REPO}/sysbench-docker:${TAG}"
+
+
