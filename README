@@ -10,5 +10,3 @@ BUILD
 
 PUSH
     docker push "${REPO}/sysbench-docker:${TAG}"
-
-

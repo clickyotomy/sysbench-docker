@@ -1,28 +1,49 @@
 #!/bin/bash
 
-set -euo pipefail
+set -euxo pipefail
 
-INSTALL_BASE="https://packagecloud.io/install/repositories/akopytov/sysbench"
+BUILD_DIR="$(mktemp -d)"
 
-function install_curl() {
-    apt-get update
-    apt-get install -y curl
+SYSBENCH_TAG="${SYSBENCH_TAG:-}"
+SYSBENCH_GIT="https://github.com/akopytov/sysbench"
+SYSBENCH_TAR="${SYSBENCH_TAG}.tar.gz"
+SYSBENCH_URL="${SYSBENCH_GIT}/archive/refs/tags/${SYSBENCH_TAR}"
+SYSBENCH_DIR="sysbench-${SYSBENCH_TAG}"
+
+function deps() {
+    yum update
+    yum -y install gzip make autoconf automake libtool pkgconfig libaio-devel
 }
 
-function install_sysbench() {
-    curl -fsSLO "${INSTALL_BASE}/script.deb.sh" | "${SHELL}"
-    apt-get install -y sysbench
+function setup() {
+    curl -fsSLO "${SYSBENCH_URL}"
+    tar -xzf "${SYSBENCH_TAR}"
+}
+
+function build() {
+    pushd "${SYSBENCH_DIR}"
+
+    autoreconf -vi
+    ./configure --without-mysql --without-pgsql
+    make -j
+    make install
+
+    popd
 }
 
 function cleanup() {
-    apt-get clean autoclean
-    apt-get autoremove --yes
-    rm -rf /var/lib/apt/lists/*
+    yum clean all
+    rm -rf /var/cache/yum "${BUILD_DIR}"
 }
 
 function main() {
-    install_curl
-    install_sysbench
+    pushd "${BUILD_DIR}"
+
+    deps
+    setup
+    build
+
+    popd
     cleanup
 }
 

@@ -1,9 +1,9 @@
-FROM ubuntu:24.04
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023
 
-WORKDIR /tmp
+ARG TAG=1.0.20
+
 COPY install.sh /tmp
-
-RUN /tmp/install.sh
+RUN SYSBENCH_TAG=${TAG} /tmp/install.sh
 
 ENTRYPOINT ["sysbench"]
 CMD [ "--help" ]
