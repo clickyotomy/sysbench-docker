@@ -24,7 +24,7 @@ function build() {
     pushd "${SYSBENCH_DIR}"
 
     autoreconf -vi
-    ./configure --without-mysql --without-pgsql
+    "${SHELL}" configure --without-mysql --without-pgsql
     make -j
     make install
 
